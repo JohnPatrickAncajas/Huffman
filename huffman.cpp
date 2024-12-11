@@ -154,6 +154,7 @@ void HuffmanFunctions::decompressAndDisplay() {
     ifstream compressedFile("compressed_students.txt");
     if (!compressedFile) {
         cout << "Error reading the file!" << endl;
+        system("pause");
         return;
     }
 
@@ -161,11 +162,14 @@ void HuffmanFunctions::decompressAndDisplay() {
     bool isMappingSection = true;
     stringstream encodedTextStream;
     unordered_map<string, char> reverseHuffmanCodes;
+    unordered_map<char, string> huffmanMappings;
+    unordered_map<char, int> frequencyCount;
+    string encodedText = "";
 
     while (getline(compressedFile, line)) {
         if (line == "Encoded Text:") {
             isMappingSection = false;
-            break;
+            continue;
         }
 
         if (isMappingSection) {
@@ -173,30 +177,51 @@ void HuffmanFunctions::decompressAndDisplay() {
             string character;
             string code;
             ss >> character >> code;
-            if (character == "(space)") character = " ";
-            reverseHuffmanCodes[code] = character[0];
-        }
-    }
 
-    string encodedText;
-    while (getline(compressedFile, line)) {
-        encodedText += line;
+            char decodedChar = (character == "(space)") ? ' ' : character[0];
+            reverseHuffmanCodes[code] = decodedChar;
+            huffmanMappings[decodedChar] = code;
+            frequencyCount[decodedChar] = 0;
+        } else {
+            encodedText += line;
+        }
     }
     compressedFile.close();
 
     string currentCode = "";
     string decodedText = "";
-
     for (char ch : encodedText) {
         currentCode += ch;
-
         if (reverseHuffmanCodes.find(currentCode) != reverseHuffmanCodes.end()) {
-            decodedText += reverseHuffmanCodes[currentCode];
+            char decodedChar = reverseHuffmanCodes[currentCode];
+            decodedText += decodedChar;
+            frequencyCount[decodedChar]++;
             currentCode = "";
         }
     }
 
-    cout << "Decoded Text: " << decodedText << endl;
+    cout << "\nDecoded Text:\n" << decodedText << "\n" << endl;
+
+    cout << string(60, '=') << "\n";
+    cout << left << setw(20) << "Character"
+         << setw(20) << "Mapping"
+         << "Frequency\n";
+    cout << string(60, '=') << "\n";
+
+    for (const auto& [character, code] : huffmanMappings) {
+        cout << left << setw(20);
+        if (character == ' ') {
+            cout << "(space)";
+        } else {
+            cout << character;
+        }
+        cout << setw(20) << code
+             << frequencyCount[character] << endl;
+    }
+    cout << string(60, '=') << "\n";
+
+    cout << "Complete Encoded Text (Bit Code):\n" << encodedText << "\n" << endl;
+
     system("pause");
 }
 
