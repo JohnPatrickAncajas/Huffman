@@ -221,7 +221,7 @@ void HuffmanFunctions::decompressAndDisplay() {
     cout << string(60, '=') << "\n";
 
     for (const auto& [character, code] : huffmanMappings) {
-        if (!isprint(character) || frequencyCount[character] == 0) continue; // Skip invalid or unused characters.
+        if (!isprint(character) || frequencyCount[character] == 0) continue;
 
         cout << left << setw(20);
         if (character == ' ') {
@@ -299,9 +299,9 @@ int HuffmanFunctions::displayMainMenu() {
     system("cls");
     int userChoice;
     cout << "==================== Main Menu ====================\n" << endl;
-    cout << "1. Create a New Text File" << endl;
-    cout << "2. Decompress and Display Text" << endl;
-    cout << "3. Exit\n" << endl;
+    cout << "1. Write New Input and Compress then Save to File!" << endl;
+    cout << "2. Decompress File and Display the Text!" << endl;
+    cout << "3. Exit the Program!\n" << endl;
     cout << "===================================================" << endl;
     cout << "Enter your choice: ";
     cin >> userChoice;
