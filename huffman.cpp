@@ -3,7 +3,6 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
-#include <sstream>
 #include <unordered_map>
 
 #define MAX 256
@@ -91,62 +90,72 @@ void HuffmanFunctions::createNewTextFile() {
 void HuffmanFunctions::calculateCharacterFrequencies() {
     fill(begin(characterFrequency), end(characterFrequency), 0);
     for (char ch : inputText) {
-        if (ch != '\n') characterFrequency[ch]++;
+        if (isprint(ch)) {
+            characterFrequency[ch]++;
+        }
     }
 }
 
 void HuffmanFunctions::displayResultsMenu() {
     system("cls");
+
     cout << left << setw(20) << "Character"
          << setw(20) << "ASCII Code"
          << setw(20) << "Frequency"
          << "Huffman Code\n" << endl;
-    cout << string(120, '=') << "\n" << endl;
+    cout << string(60, '=') << "\n" << endl;
 
     for (int i = 0; i < MAX; ++i) {
-        if (characterFrequency[i] > 0) {
+        if (characterFrequency[i] > 0 && isprint(i)) {
             cout << left << setw(20);
             if (i == ' ') {
                 cout << "(space)";
             } else {
                 cout << char(i);
             }
+
             cout << setw(20) << i
                  << setw(20) << characterFrequency[i]
                  << huffmanCodes[i] << endl;
         }
     }
-    cout << "\n" << string(120, '=') << endl;
+
+    cout << "\n" << string(60, '=') << endl;
+
+    system("pause");
 }
 
 void HuffmanFunctions::saveToFile() {
     system("cls");
     ofstream compressedFile("compressed_students.txt");
-    if (compressedFile) {
-        compressedFile << "Character Mappings:\n";
-        for (int i = 0; i < MAX; ++i) {
-            if (characterFrequency[i] > 0) {
-                if (i == ' ') {
-                    compressedFile << "(space) ";
-                } else {
-                    compressedFile << char(i) << " ";
-                }
-                compressedFile << huffmanCodes[i] << endl;
-            }
-        }
 
-        compressedFile << "\nEncoded Text:\n";
-        for (char ch : inputText) {
-            if (ch != '\n') {
-                compressedFile << huffmanCodes[ch];
-            }
-        }
-
-        compressedFile.close();
-        cout << "Data saved to 'compressed_students.txt'!" << endl;
-    } else {
+    if (!compressedFile) {
         cout << "Error opening file!" << endl;
+        system("pause");
+        return;
     }
+
+    for (int i = 0; i < MAX; ++i) {
+        if (characterFrequency[i] > 0 && isprint(i)) {
+            if (i == ' ') {
+                compressedFile << "(space) ";
+            } else {
+                compressedFile << char(i) << " ";
+            }
+            compressedFile << huffmanCodes[i] << endl;
+        }
+    }
+
+    compressedFile << "\nEncoded Text:\n";
+    for (char ch : inputText) {
+        if (isprint(ch)) {
+            compressedFile << huffmanCodes[ch];
+        }
+    }
+
+    compressedFile.close();
+
+    cout << "Your text has been compressed using the Huffman algorithm!" << endl;
     system("pause");
 }
 
@@ -190,12 +199,15 @@ void HuffmanFunctions::decompressAndDisplay() {
 
     string currentCode = "";
     string decodedText = "";
+
     for (char ch : encodedText) {
         currentCode += ch;
         if (reverseHuffmanCodes.find(currentCode) != reverseHuffmanCodes.end()) {
             char decodedChar = reverseHuffmanCodes[currentCode];
-            decodedText += decodedChar;
-            frequencyCount[decodedChar]++;
+            if (isprint(decodedChar)) {
+                decodedText += decodedChar;
+                frequencyCount[decodedChar]++;
+            }
             currentCode = "";
         }
     }
@@ -209,6 +221,8 @@ void HuffmanFunctions::decompressAndDisplay() {
     cout << string(60, '=') << "\n";
 
     for (const auto& [character, code] : huffmanMappings) {
+        if (!isprint(character) || frequencyCount[character] == 0) continue; // Skip invalid or unused characters.
+
         cout << left << setw(20);
         if (character == ' ') {
             cout << "(space)";
@@ -220,7 +234,8 @@ void HuffmanFunctions::decompressAndDisplay() {
     }
     cout << string(60, '=') << "\n";
 
-    cout << "Complete Encoded Text (Bit Code):\n" << encodedText << "\n" << endl;
+
+    cout << "Compressed Code:\n" << encodedText << "\n" << endl;
 
     system("pause");
 }
